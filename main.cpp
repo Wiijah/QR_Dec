@@ -144,10 +144,11 @@ pair<mat, mat> QR_ite(mat x) {
         eigenvec = matrix_mul(temp, qk);
         free_matrix(temp);
         mat rk = qr.second;
+        temp = ak;
         ak = matrix_mul(rk, qk);
+        free_matrix(temp);
         free_matrix(qr.first);
         free_matrix(qr.second);
-        free_matrix(rk);
     }
     return make_pair(ak, eigenvec);
 }
@@ -219,14 +220,30 @@ int main(int argc, const char* argv[]) {
         input = create_random(5);
     }
 
-    pair<mat, mat> result = QR_ite(input);
-
     FILE * fp;
     fp = fopen("output.txt", "w+");
+    fprintf(fp, "Matrix:\n");
+    for (int i = 0; i < input->m; i++) {
+        for (int j = 0; j < input->n; j++) {
+            fprintf(fp, "%f\t", input->values[i][j]);
+        }
+        fprintf(fp, "\n");
+    }
+    pair<mat, mat> result = QR_ite(input);
     fprintf(fp, "Eigenvalues:\n");
     for (int i = 1; i <= input->m; i++) {
-        fprintf(fp, "%d: %f", i, result.first->values[i-1][i-1]);
+        fprintf(fp, "%d: %f ", i, result.first->values[i-1][i-1]);
+    }
+    fprintf(fp ,"\nEigenvectors:\n");
+    for (int i = 1; i <= input->m; i++) {
+        fprintf(fp, "%d: (", i);
+        for (int j = 1; j < input->m; j++) {
+            fprintf(fp, "%f, ", result.second->values[j-1][i-1]);
+        }
+        fprintf(fp, "%f)\n", result.second->values[input->m-1][i-1]);
     }
     fclose(fp);
+    free_matrix(result.first);
+    free_matrix(result.second);
     return 0;
 }
